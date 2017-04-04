@@ -75,7 +75,7 @@ void TP1_Ejercicio1(){
 //	m.push_back(img);
 //	m.push_back(img2);
 //	
-//	Mat muestra = mosaic(m,3);	
+//	Mat muestra = mosaic(m);	
 //	
 //	imshow("Mosaico",m);
 	
@@ -125,73 +125,63 @@ void TP1_Ejercicio2(){
 	
 	waitKey(0);
 }
-///FUNCION QUE LEE PIXEL DEL MOUSE
-void onMouse(int event, int x, int y, int, void* )
-{
-	if( event != CV_EVENT_LBUTTONDOWN )
-		return;
-	
-	Point pt = Point(x,y);
-	cout<<"x="<<pt.x<<"\t y="<<pt.y;
-	//Vec3b valores=imagen.at<cv::Vec3b>(y,x);
-	//cout<<"\t B="<<(int)valores.val[0]<<" G="<<(int)valores.val[1]<<" R="<<(int)valores.val[2]<<endl;
-	
-}
 
-void Ejercicio2_1(){
-	///EJERCICIO 2.1
-	namedWindow("Ejercicio 2.1");
-	setMouseCallback("Ejercicio 2.1", onMouse, 0 );
-	//imshow("Ejercicio 2.1",imagen);
-	
-}
-
-void Ejercicio3_1(){
-	Mat img=imread("botellas.tif",CV_LOAD_IMAGE_GRAYSCALE);
-	Mat aux(1,img.cols,CV_8U);
-	for (int i=0;i<img.cols;i++){
-		aux.at<uchar> (i)=img.at<uchar>(60,i);
+void perfilIntensidad(Mat img, int x1, int y1,int x2, int y2){
+	int koko,deltaY,deltaX,m,b,y;
+	if(y1 == y2){
+		koko = abs(x2-x1);
+		
+	}else{
+		if(x1 == x2){
+			koko = abs(y2-y1);
+		}else{
+			deltaY = abs(y2-y1);
+			deltaX = abs(x2-x1);
+			m = deltaY/deltaX;
+			b= y1 - m*x1;
+			koko = sqrt(deltaY*deltaY + deltaX+deltaX);
+		}
 	}
-	Mat grafico(img.rows,img.cols,CV_8U);
+	
+	
+	Mat aux(1,koko,CV_8U);
+	
+	if(y1==y2){
+		for(int i=0; i<koko ;i++){
+			aux.at<uchar>(i) = img.at<uchar>(x1,i);
+		}
+	}
+	if(x1==x2){
+		for(int i=0; i<koko ;i++){
+			aux.at<uchar>(i) = img.at<uchar>(i,y1);
+		}
+	}else{
+		for(int i=1; i<deltaX ;i++){
+			y = m*x1 + b;
+			aux.at<uchar>(i) = img.at<uchar>(y,x1);
+		}
+	}
+	
+	
+	
+	
+
+
+
+	Mat grafico(koko+1,koko+1,CV_8U);
 	grafico.setTo(Scalar(0,0,0));
 	draw_graph(grafico,aux);
-	imshow("Ventana",grafico);
-	imshow("Ventana2",img);
+	imshow("Grafico",grafico);
+	waitKey(0);
 }
-void Ejercicio3_3(){
-	Mat img=imread("botellas.tif",CV_LOAD_IMAGE_GRAYSCALE);
-	info(img);
-	Mat aux(1,img.rows,CV_8U);
-	int c=0;
-	for (int i=0;i<img.rows;i++){
-		aux.at<uchar> (i)=img.at<uchar>(i,5);
-		if ((int)aux.at<uchar> (i)>220)
-			c++;
-		
-	}
-	int c2=0;
-	for (int i=0;i<img.rows;i++){
-		aux.at<uchar> (i)=img.at<uchar>(i,img.cols/2);
-		if ((int)aux.at<uchar> (i)>220)
-			c2++;
-		
-	}
-	cout<<(float)c2/img.rows*100;
-	Mat grafico(img.rows,img.cols,CV_8U);
-	grafico.setTo(Scalar(0,0,0));
-	draw_graph(grafico,aux);
-	imshow("Ventana",grafico);
-	imshow("Ventana2",img);
-}
+
 
 int main(int argc, char** argv) {
 	
 //	TP1_Ejercicio1();
 //	TP1_Ejercicio2();
-	Mat imagen = imread("futbol.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-//	perfilIntensidad(img, 1, 1,228, 228);
+	Mat img = imread("futbol.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+	perfilIntensidad(img, 1, 1,228, 228);
 	
-	Ejercicio3_3();
-	waitKey(0);
 	return 0;
 } 

@@ -75,7 +75,7 @@ void TP2_Ejercicio2(int inciso,float gamma=1){
 	if (inciso == 1){
 		for(int i=0;i<255;i++){
 			
-			aux = log(1+i/255.0)*255;
+			aux = log(1+i);///255.0)*255;
 			if(aux>255) aux = 255;
 			if(aux<0) aux = 0;
 			lut.at<unsigned char>(i)= aux;
