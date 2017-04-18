@@ -16,11 +16,11 @@ current_source=main.cpp
 path_char=/
 [source]
 path=main.cpp
-cursor=156:1
+cursor=270:20
 open=true
 [header]
 path=pdi_functions.h
-cursor=55:22
+cursor=80:0
 [header]
 path=utils.h
 cursor=0:0
