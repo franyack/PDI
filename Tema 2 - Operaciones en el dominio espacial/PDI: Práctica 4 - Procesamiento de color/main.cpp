@@ -13,6 +13,75 @@ using namespace cv;
 using namespace pdi;
 using namespace std;
 
+void onMouse( int event, int x, int y, int, void* );
+//
+Mat imagen = imread("rostro10.png");
+
+void onMouse( int event, int x, int y, int, void* )
+{
+	if( event != CV_EVENT_LBUTTONDOWN )
+		return;
+	
+	Point pt = Point(x,y);
+	cout<<"x="<<pt.x<<"\t y="<<pt.y;
+	Vec3b valores=imagen.at<cv::Vec3b>(y,x);
+	cout<<"\t B="<<(int)valores.val[0]<<" G="<<(int)valores.val[1]<<" R="<<(int)valores.val[2]<<endl;
+	
+}
+void Averiguar(){
+	//EJERCICIO 2.1
+	namedWindow("Averiguar Pixeles");
+	setMouseCallback( "Averiguar Pixeles", onMouse, 0 );
+	imshow("Averiguar Pixeles",imagen);
+	
+}
+
+//usados para recortar una imagen a partir de otra
+Rect cropRect(0, 0, 0, 0);
+Point P1(0, 0);
+Point P2(0, 0);
+
+void Mouse(int event, int x, int y, int flags, void* userdata) { 
+	int x_ini = 0; int y_ini = 0; int x_fin = 0; int y_fin = 0;
+	
+	switch (event) {
+	case CV_EVENT_LBUTTONDOWN:
+		P1.x = x;
+		P1.y = y;
+		P2.x = x;
+		P2.y = y;
+		cout << "Boton izquierdo presionado en las coord (x, y): " << x << " , " << y << endl;
+		break;
+	case CV_EVENT_LBUTTONUP:
+		P2.x = x;
+		P2.y = y;
+		cout << "Boton izquierdo liberado en las coord (x,y): " << x << " , " << y << endl;
+		break;
+	default: break;
+	}
+}
+void crop_mouse(string image) { //Funcion para armar un roi a traves de seleccion de ventana en imagen
+	//	Utilizo la funcion "Mouse" definida arriba. Solo recortar desde arriba-izq hacia abajo-derecha
+	Mat img = imread(image, 1);
+	namedWindow("ImageDisplay", 1);
+	setMouseCallback("ImageDisplay", Mouse, NULL);
+	imshow("ImageDisplay", img);
+	waitKey(10000);
+	
+	int ancho = P2.x - P1.x;
+	int alto = P2.y - P1.y;
+	Rect r_crop(P1.x, P1.y, ancho, alto);
+	cout << P1.x << ", " << P2.x << ", " << P1.y << ", " << P2.y << endl;
+	Mat img_crop = img(r_crop);
+	namedWindow("cropped", 1);
+	imshow("cropped", img_crop);
+	waitKey(0);
+	system("PAUSE");
+	
+}
+
+
+
 
 void TP4_Ejercicio1_1(){
 	Mat img_rgb = imread("patron.tif");
@@ -162,7 +231,97 @@ void TP4_Ejercicio3_2(){
 }
 
 
+void TP4_Ejercicio4_1(){
+	Mat img = imread("futbol.jpg");
+	imshow("Original",img);
+	Mat roi=img(Rect(135,155,52,80));
+	imshow("ROI",roi);
+	vector<Mat>bgr;
+	split(roi,bgr);
 
+	//Hago los histogramas para saber que region utilizar luego.
+	Mat histoB=histogram(bgr[0],255);
+	Mat histoG=histogram(bgr[1],255);
+	Mat histoR=histogram(bgr[2],255);
+	
+	normalize(histoB,histoB,0,1,CV_MINMAX);
+	normalize(histoG,histoG,0,1,CV_MINMAX);
+	normalize(histoR,histoR,0,1,CV_MINMAX);
+	
+//	for(int i=0;i<histoB.cols;i++) { 
+//		for(int j=0;j<histoB.rows;j++) { 
+//			cout<<(float)histoB.at<uchar>(i,j)<<endl;
+//		}
+//	}
+	
+	Mat canvasB(200,400,CV_32F);
+	Mat canvasG(200,400,CV_32F);
+	Mat canvasR(200,400,CV_32F);
+	
+	draw_graph(canvasB,histoB);
+	draw_graph(canvasG,histoG);
+	draw_graph(canvasR,histoR);
+	
+	imshow("B",canvasB);
+	imshow("G",canvasG);
+	imshow("R",canvasR);
+	
+	Mat mascara= Mat::zeros(img.size(), img.type());
+	Mat segmentacionRGB= Mat::zeros(img.size(), img.type());    
+	inRange(img,Scalar(100,17,0),Scalar(212,113,60),mascara); //regiones aproximadas sacadas de los histogramas
+	img.copyTo(segmentacionRGB, mascara);
+	imshow("Segmentacion RGB",segmentacionRGB);
+	
+}
+
+void TP4_Ejercicio4_2(){
+	Mat img = imread("rostro0.png");
+	imshow("Original",img);
+	//Comienza la busqueda del Tono y Saturacion para realizar la segmentacion, el brillo no es necesario
+	//Defino el roi
+//	Mat roi=img(Rect(150,60,60,100)); //cara de Marcelo  Rect(x,y,cuantosx,cuantosy)
+	Mat roi=img(Rect(138,114,42,66)); //cara de Cesar
+	imshow("ROI",roi);
+	Mat roi_hsv;
+	//Convierto el ROI de BGR a HSV
+	cvtColor(roi,roi_hsv,CV_BGR2HSV);
+	vector<Mat>hsv;
+	//Lo divido en los 3 planos
+	split(roi_hsv,hsv);
+	
+	//Realizo los 2 histogramas para ver los rangos de interes
+	Mat histH = histogram(hsv[0],255);
+	Mat histS = histogram(hsv[1],255);
+	
+	normalize(histH,histH,0,1,CV_MINMAX);
+	normalize(histS,histS,0,1,CV_MINMAX);
+	
+	Mat canvasH(200,400,CV_32F);
+	Mat canvasS(200,400,CV_32F);
+	
+	draw_graph(canvasH,histH);
+	draw_graph(canvasS,histS);
+	
+	imshow("Histo H", canvasH);
+	imshow("Histo S", canvasS);
+	
+	//Ahora paso a realizar el procesamiento sobre la imagen original
+	//Convierto la imagen original de BGR a HSV
+	cvtColor(img,img,CV_BGR2HSV);
+	//Creo la mascara y la matriz de segmentacion
+	Mat mascara= Mat::zeros(img.size(), img.type());
+	Mat segmentacion= Mat::zeros(img.size(), img.type());
+    //Busco con esta funcion, en img, los valores que se definen en Scalar y los pego en la mascara
+//	inRange(img,Scalar(6,0,0),Scalar(30,100,255),mascara); //regiones aproximadas sacadas de los histogramas  --->>> Rostro de Marcelo
+	inRange(img,Scalar(1,1,0),Scalar(35,70,255),mascara); //regiones aproximadas sacadas de los histogramas  ---->Rostro de Cesar
+	//con copyTo hago una copia en segmentacion de la multiplicacion entre img y mascara, descartando
+	//aquellos valores que no son iguales a los encontrados en inRange
+	img.copyTo(segmentacion, mascara);
+	//Convierto segmentacion de HSV a BGR para poder visualizarlo
+	cvtColor(segmentacion,segmentacion,CV_HSV2BGR);
+	imshow("Segmentacion HSV",segmentacion);
+	
+}
 
 
 
@@ -172,9 +331,11 @@ int main(int argc, char** argv) {
 //	TP4_Ejercicio1_1();
 //	TP4_Ejercicio1_2();
 //	TP4_Ejercicio2();
-	TP4_Ejercicio3_1();
+//	TP4_Ejercicio3_1();
 //	TP4_Ejercicio3_2();
-
+//	TP4_Ejercicio4_1();
+	TP4_Ejercicio4_2();
+//	Averiguar();
 	
 	
 	waitKey(0);

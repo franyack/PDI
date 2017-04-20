@@ -16,17 +16,17 @@ current_source=main.cpp
 path_char=/
 [source]
 path=main.cpp
-cursor=22:0
+cursor=151:6
 open=true
 [header]
 path=pdi_functions.h
-cursor=91:15
+cursor=542:11
 [header]
 path=utils.h
 cursor=0:0
 [other]
 path=readme.txt
-cursor=1:61
+cursor=0:0
 [config]
 name=Win32_Debug
 toolchain=
@@ -171,8 +171,6 @@ libraries=
 strip_executable=2
 console_program=1
 dont_generate_exe=0
-[inspections]
-expr=aux
 [custom_tools]
 name_0=Referencia OpenCV
 command_0=${BROWSER} http://docs.opencv.org/index.html

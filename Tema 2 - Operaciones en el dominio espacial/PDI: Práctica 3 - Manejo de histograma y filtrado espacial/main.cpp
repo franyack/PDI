@@ -138,17 +138,19 @@ void TP3_Ejercicio2_2(){
 
 void TP3_Ejercicio2_3(){
 	Mat img=imread("hubble.tif",CV_LOAD_IMAGE_GRAYSCALE);
-	Mat kernel=filtro_promediador(9);
+	Mat kernel=filtro_promediador(15);
 	Mat filtro=convolve(img,kernel);
 	Mat umbral(filtro.size(),CV_8UC(1));
 	for (int i=0;i<filtro.rows;i++){
 		for (int j=0;j<filtro.cols;j++){
-			if ((int)filtro.at<uchar>(i,j)>150){umbral.at<uchar>(i,j)=255;}
+			if ((int)filtro.at<uchar>(i,j)>70){umbral.at<uchar>(i,j)=255;}
 			else{umbral.at<uchar>(i,j)=0;}
 		}
 	}
+	
 	imshow("Original",img);
 	imshow("Filtrado",filtro);
+	umbral = img & umbral;
 	imshow("Umbral Binario",umbral);
 
 }
@@ -236,11 +238,11 @@ int main(int argc, char** argv) {
 //	TP3_Ejercicio1_1();
 //	TP3_Ejercicio2_1();
 //	TP3_Ejercicio2_2();
-//	TP3_Ejercicio2_3();
+	TP3_Ejercicio2_3();
 //	TP3_Ejercicio3_1();
 //	TP3_Ejercicio3_2();
 //	TP3_Ejercicio4_1();
-	TP3_Ejercicio4_2(2);
+//	TP3_Ejercicio4_2(2);
 	
 	
 	waitKey(0);

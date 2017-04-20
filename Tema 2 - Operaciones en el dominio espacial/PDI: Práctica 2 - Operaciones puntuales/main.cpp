@@ -184,6 +184,7 @@ void TP2_Ejercicio3_2(){
 //	for(int i=0;i<50;i++){
 //		Mat ruido = Mat::zeros(img.rows,img.cols,CV_8U);
 //		randn(ruido,0,0.05);
+//		Mat resultado(img.size(),img.type());
 //		Mat resultado = (img+ruido);
 //		imagenes.push_back(resultado);
 //	}
