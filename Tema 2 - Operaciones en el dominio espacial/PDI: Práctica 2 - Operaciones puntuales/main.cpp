@@ -13,17 +13,11 @@ using namespace cv;
 using namespace pdi;
 using namespace std;
 
-float generarRandom(float a, float b){
-	std::mt19937_64 rng;
-	// initialize the random number generator with time-dependent seed
-	uint64_t timeSeed = rand();//std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	std::seed_seq ss{uint32_t(timeSeed & 0xffffffff), uint32_t(timeSeed>>32)};
-	rng.seed(ss);
-	// initialize a uniform distribution between 0 and 1
-	std::uniform_real_distribution<double> unif(a, b);
-	double currentRandomNumber = unif(rng);
-	return currentRandomNumber;
-}
+
+
+
+
+
 
 
 void TP2_Ejercicio1(float a,float c){
@@ -77,6 +71,7 @@ void TP2_Ejercicio1(float a,float c){
 	//wait for the user to press any key:
 	waitKey(0);
 }
+
 
 
 
@@ -147,7 +142,7 @@ void TP2_Ejercicio3(){
 	
 	///RESTA Y REESCALADOS TIPICOS PARA EVITAR DESBORDES DE RANGO
 	
-	result = (img1 - img2 + 255)/2;
+	result = (img2 - img1 + 255)/2;
 	imshow("Resta", result);
 	
 	///MULTIPLICACION
@@ -176,62 +171,31 @@ void TP2_Ejercicio3(){
 }
 
 
+
 void TP2_Ejercicio3_2(){
-//	Mat img = imread("huang1.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-//	imshow("Imagen Original",img);
-//	vector<Mat>imagenes;
-//	
-//	for(int i=0;i<50;i++){
-//		Mat ruido = Mat::zeros(img.rows,img.cols,CV_8U);
-//		randn(ruido,0,0.05);
-//		Mat resultado(img.size(),img.type());
-//		Mat resultado = (img+ruido);
-//		imagenes.push_back(resultado);
-//	}
-//	Mat promedio = imagenes[0];
-//
-//	for(int i=1;i<imagenes.size();i++){
-//		promedio+=imagenes[i];
-//	}
-//	
-//	promedio/=imagenes.size();
-//	
-//	imshow("Promedio",promedio);
-//	
-//	
-////	float aux2;
-////	for (int i=0;i<aux.rows;i++){
-////		for(int j=0;j<aux.cols;j++){
-////			aux2 = aux.at<uchar>(i,j)+generarRandom(0,0.05);
-////			if(aux2>255) aux2 = 255;
-////			img.at<uchar>(i,j)=aux2;
-////			cout<<(float)aux.at<uchar>(i,j)<<endl;
-////		}
-////	}
-//	//imshow("Imagen contaminada",img);
-	
 	Mat img=imread("huang1.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-	//	Mat ruido(img.size(),img.type());
-	//	randn(ruido,0,0.5*255);
-	Mat aux;
-	img.convertTo(aux,CV_32F);
-	vector<Mat> imagenes;
-	for (int i=0;i<50;i++){
+	img.convertTo(img,CV_32F,1/255.0);
+	vector <Mat> imagenes;
+	for(int i=0;i<50;i++) { 
 		Mat ruido(img.size(),img.type());
-		randn(ruido,0,0.5*255);
-		Mat resultado=(aux+ruido)/2;
-		imagenes.push_back(resultado);
+		randn(ruido,0,0.05);
+		Mat aux=(ruido+img);
+		imagenes.push_back(aux);
 	}
-	Mat mezcla=imagenes[0];
-	for (int i=1;i<imagenes.size();i++){
-		mezcla+=imagenes[i];
+	Mat img_final(img.size(),CV_32F);
+	int tam=imagenes.size();
+	for(int i=1;i<tam;i++) { 
+		img_final+=imagenes[i];
 	}
-	mezcla/=imagenes.size();
+	img_final=(img_final/tam);
 	imshow("Original",img);
-	imshow("Ruido",imagenes[0]);
-	imshow("Resultado",mezcla);
+	imshow("Img con ruido",imagenes[23]);
+	imshow("Promedio",img_final);
 	
 }
+
+
+
 
 void TP2_Ejercicio4(){
 	
@@ -338,11 +302,53 @@ void TP2_Ejercicio5_2(Mat entrada){
 	}
 }
 
+void TP2_Ejercicio5_3(string nombre){
+	Mat img=imread(nombre,CV_LOAD_IMAGE_GRAYSCALE);
+	Mat mascara= Mat::zeros(img.size(), img.type());
+	Mat multiplicacion= Mat::zeros(img.size(), img.type());    
+	//SI LA MASCARA BINARIA ES UN CIRCULO
+	circle(mascara, Point(53,54), 16, Scalar(255, 0, 0), -1, 8, 0);
+	circle(mascara, Point(102,53), 16, Scalar(255, 0, 0), -1, 8, 0);
+	circle(mascara, Point(152,53), 16, Scalar(255, 0, 0), -1, 8, 0);
+	circle(mascara, Point(202,53), 16, Scalar(255, 0, 0), -1, 8, 0);
+	circle(mascara, Point(252,51), 16, Scalar(255, 0, 0), -1, 8, 0);
+	
+	circle(mascara, Point(53,101), 16, Scalar(255, 0, 0), -1, 8, 0);
+	circle(mascara, Point(102,102), 16, Scalar(255, 0, 0), -1, 8, 0);
+	circle(mascara, Point(152,101), 16, Scalar(255, 0, 0), -1, 8, 0);
+	circle(mascara, Point(202,100), 16, Scalar(255, 0, 0), -1, 8, 0);
+	circle(mascara, Point(252,100), 16, Scalar(255, 0, 0), -1, 8, 0);
+	//SI LA MASCARA BINARIA ES UN RECTANGULO
+	info(img);
+	//	rectangle(mascara,Point(190,90),Point(250,155),Scalar(255, 0, 0),-1,8,0);
+	//Now you can copy your source image to destination image with masking
+	img.copyTo(multiplicacion, mascara);
+	
+	if ((int)img.at<uchar>(Point(53,54))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(53,54)<<endl;
+	if ((int)img.at<uchar>(Point(102,53))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(102,53)<<endl;
+	if ((int)img.at<uchar>(Point(152,53))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(152,53)<<endl;
+	if ((int)img.at<uchar>(Point(202,53))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(202,53)<<endl;
+	if ((int)img.at<uchar>(Point(252,51))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(252,51)<<endl;
+	if ((int)img.at<uchar>(Point(53,101))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(53,101)<<endl;
+	if((int)img.at<uchar>(Point(102,102))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(102,102)<<endl;
+	if ((int)img.at<uchar>(Point(152,101))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(152,101)<<endl;
+	if ((int)img.at<uchar>(Point(202,100))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(202,100)<<endl;
+	if ((int)img.at<uchar>(Point(252,100))<100) cout<<"El blister esta incompleto. Faltante en: "<<Point(252,100)<<endl;
+	
+	
+	
+	//	imshow("Imagen",img);
+	imshow("Mascara",mascara);
+	imshow("Zona de interes",multiplicacion);
+	imshow("Blister",img);
+}
+
+
 
 
 int main(int argc, char** argv) {
 	
-	//TP2_Ejercicio1(100,100);
+//	TP2_Ejercicio1(2,0);
 	
 //	TP2_Ejercicio2(2,2);
 	
@@ -352,8 +358,17 @@ int main(int argc, char** argv) {
 	
 //	TP2_Ejercicio4();
 	
-	Mat entrada = imread("a7v600-SE-ruido.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-	TP2_Ejercicio5_2(entrada);
+//	Mat entrada = imread("a7v600-SE-ruido.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+//	TP2_Ejercicio5_2(entrada);
+	
+//	TP2_Ejercicio5_3("blister_incompleto.jpg");
+	
+	
+	Mat img = imread("neutrokeke.jpeg");
+//	vector<Mat> outt = planoBits(img);
+	namedWindow("pru",CV_WINDOW_KEEPRATIO);
+	imshow("pru",img);
+	
 	
 	waitKey(0);
 	return 0;

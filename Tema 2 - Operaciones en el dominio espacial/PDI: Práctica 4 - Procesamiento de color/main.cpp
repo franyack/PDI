@@ -3,6 +3,8 @@
 #include <vector>
 #include "pdi_functions.h"
 #include "utils.h"
+#include "utils2.h"
+#include "utils3.h"
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
@@ -13,28 +15,7 @@ using namespace cv;
 using namespace pdi;
 using namespace std;
 
-void onMouse( int event, int x, int y, int, void* );
-//
-Mat imagen = imread("rostro10.png");
 
-void onMouse( int event, int x, int y, int, void* )
-{
-	if( event != CV_EVENT_LBUTTONDOWN )
-		return;
-	
-	Point pt = Point(x,y);
-	cout<<"x="<<pt.x<<"\t y="<<pt.y;
-	Vec3b valores=imagen.at<cv::Vec3b>(y,x);
-	cout<<"\t B="<<(int)valores.val[0]<<" G="<<(int)valores.val[1]<<" R="<<(int)valores.val[2]<<endl;
-	
-}
-void Averiguar(){
-	//EJERCICIO 2.1
-	namedWindow("Averiguar Pixeles");
-	setMouseCallback( "Averiguar Pixeles", onMouse, 0 );
-	imshow("Averiguar Pixeles",imagen);
-	
-}
 
 //usados para recortar una imagen a partir de otra
 Rect cropRect(0, 0, 0, 0);
@@ -172,61 +153,52 @@ void TP4_Ejercicio3_1(){
 	Mat img = imread("flowers_oscura.tif");
 	Mat img1 = imread("flowers_oscura.tif");
 	imshow("Original",img);
-	vector<Mat>bgr;
-	split(img,bgr);
-	equalizeHist(bgr[0],bgr[0]);
-	equalizeHist(bgr[1],bgr[1]);
-	equalizeHist(bgr[2],bgr[2]);
-	merge(bgr,img);
-	imshow("Imagen equalizada RGB",img);
+//	vector<Mat>bgr;
+//	split(img,bgr);
+//	equalizeHist(bgr[0],bgr[0]);
+//	equalizeHist(bgr[1],bgr[1]);
+//	equalizeHist(bgr[2],bgr[2]);
+//	merge(bgr,img);
+	imshow("Imagen equalizada RGB",equalizarRGB(img));
 	
 	//Trabajare en HSV
-	Mat img_hsv;
-	cvtColor(img1, img_hsv,CV_BGR2HSV);
-	vector<Mat>hsv;
-	split(img_hsv,hsv);
-	//Solo se ecualiza el canal V
-	equalizeHist(hsv[2],hsv[2]);
-	merge(hsv,img_hsv);
-	//Vuelvo a RGB para poder mostrarla
-	cvtColor(img_hsv,img_hsv,CV_HSV2BGR);
-	imshow("Imagen equalizada HSV",img_hsv);
+//	Mat img_hsv;
+//	cvtColor(img1, img_hsv,CV_BGR2HSV);
+//	vector<Mat>hsv;
+//	split(img_hsv,hsv);
+//	//Solo se ecualiza el canal V
+//	equalizeHist(hsv[2],hsv[2]);
+//	merge(hsv,img_hsv);
+//	//Vuelvo a RGB para poder mostrarla
+//	cvtColor(img_hsv,img_hsv,CV_HSV2BGR);
+	imshow("Imagen equalizada HSV",equalizarHSV(img1));
 }
 
-Mat filtro_pasa_alto_suma1(int tam){
-	Mat kernel(tam,tam,CV_32F);
-	for (int i=0;i<kernel.rows;i++){
-		for (int j=0;j<kernel.cols;j++){
-			kernel.at<float>(i,j)=-1;
-		}
-	}
-	kernel.at<float>(tam/2,tam/2)=tam*tam;
-	return kernel;
-}
 
 
 void TP4_Ejercicio3_2(){
 	Mat img = imread("camino.tif");
 	Mat img1 = imread("camino.tif");
 	imshow("Original",img);
-	Mat kernel = filtro_pasa_alto_suma1(3);
-	vector<Mat> bgr;
-	split(img,bgr);
-	bgr[0] = convolve(bgr[0],kernel);
-	bgr[1] = convolve(bgr[1],kernel);
-	bgr[2] = convolve(bgr[2],kernel);
-	merge(bgr,img);
-	imshow("Imagen RGB Filtrada",img);
+//	Mat kernel = filtro_pasa_alto_suma1(3);
+//	vector<Mat> bgr;
+//	split(img,bgr);
+//	bgr[0] = convolve(bgr[0],kernel);
+//	bgr[1] = convolve(bgr[1],kernel);
+//	bgr[2] = convolve(bgr[2],kernel);
+//	merge(bgr,img);
 	
-	Mat img_hsv;
-	cvtColor(img1,img_hsv,CV_BGR2HSV);
-	vector<Mat>hsv;
-	split(img_hsv,hsv);
-	//Nuevamente, el kernel se aplica solo sobre el plano de brillo o valor
-	hsv[2]=convolve(hsv[2],kernel);
-	merge(hsv,img_hsv);
-	cvtColor(img_hsv,img1,CV_HSV2BGR);
-	imshow("Imagen HSV filtrada",img1);
+	imshow("Imagen RGB Filtrada",realceMedianteAcentuadoRGB(img));
+	
+//	Mat img_hsv;
+//	cvtColor(img1,img_hsv,CV_BGR2HSV);
+//	vector<Mat>hsv;
+//	split(img_hsv,hsv);
+//	//Nuevamente, el kernel se aplica solo sobre el plano de brillo o valor
+//	hsv[2]=convolve(hsv[2],kernel);
+//	merge(hsv,img_hsv);
+//	cvtColor(img_hsv,img1,CV_HSV2BGR);
+	imshow("Imagen HSV filtrada",realceMedianteAcentuadoHSV(img1));
 	
 }
 
@@ -333,10 +305,10 @@ int main(int argc, char** argv) {
 //	TP4_Ejercicio2();
 //	TP4_Ejercicio3_1();
 //	TP4_Ejercicio3_2();
-//	TP4_Ejercicio4_1();
-	TP4_Ejercicio4_2();
+	TP4_Ejercicio4_1();
+//	TP4_Ejercicio4_2();
 //	Averiguar();
-	
+//	crop_mouse("huang2.jpg");
 	
 	waitKey(0);
 	return 0;

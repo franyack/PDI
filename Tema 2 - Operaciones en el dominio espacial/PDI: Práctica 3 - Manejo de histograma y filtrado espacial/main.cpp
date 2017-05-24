@@ -14,8 +14,10 @@ using namespace pdi;
 using namespace std;
 
 
+
+
 void TP3_Ejercicio1_1(){
-	Mat img=imread("futbol.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+	Mat img=imread("imagenE.tif",CV_LOAD_IMAGE_GRAYSCALE);
 	Mat canvas(img.rows,img.cols,CV_32F);
 	Mat histo = histogram(img,255);
 	normalize(histo,histo,0,1,CV_MINMAX);
@@ -213,7 +215,7 @@ void TP3_Ejercicio3_2(){
 
 void TP3_Ejercicio4_1(){
 	Mat img=imread("camaleon.tif",CV_LOAD_IMAGE_GRAYSCALE);
-	Mat kernel = filtro_promediador(9);
+	Mat kernel = filtro_promediador(19);
 	Mat filtrada = convolve(img,kernel);
 	Mat difusa = (img - filtrada + 255)/2;
 	imshow("Original",img);
@@ -238,12 +240,15 @@ int main(int argc, char** argv) {
 //	TP3_Ejercicio1_1();
 //	TP3_Ejercicio2_1();
 //	TP3_Ejercicio2_2();
-	TP3_Ejercicio2_3();
+//	TP3_Ejercicio2_3();
 //	TP3_Ejercicio3_1();
 //	TP3_Ejercicio3_2();
 //	TP3_Ejercicio4_1();
 //	TP3_Ejercicio4_2(2);
-	
+	Mat img=imread("camaleon.tif",CV_LOAD_IMAGE_GRAYSCALE);
+	Mat outt = aplicar_filtro_altaPotencia(img,2,3);
+	imshow("ori",img);
+	imshow("jasj",outt);
 	
 	waitKey(0);
 	return 0;

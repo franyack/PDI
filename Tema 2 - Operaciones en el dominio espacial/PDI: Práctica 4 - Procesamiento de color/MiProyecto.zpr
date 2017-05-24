@@ -16,14 +16,15 @@ current_source=main.cpp
 path_char=/
 [source]
 path=main.cpp
-cursor=308:8
+cursor=233:28
 open=true
 [header]
 path=pdi_functions.h
 cursor=542:11
 [header]
 path=utils.h
-cursor=0:0
+cursor=110:40
+open=true
 [other]
 path=readme.txt
 cursor=0:0
