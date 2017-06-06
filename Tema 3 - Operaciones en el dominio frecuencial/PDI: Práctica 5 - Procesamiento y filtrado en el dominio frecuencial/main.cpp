@@ -14,169 +14,190 @@ using namespace pdi;
 using namespace std;
 
 
-void TP4_Ejercicio1_1(){
-	Mat img_rgb = imread("patron.tif");
-	
-	vector<Mat>bgr;
-	//Split multi-channel image into single-channel arrays
-	split(img_rgb,bgr);
-//	imshow("Original RGB",img_rgb);
-//	imshow("Blue Plane",bgr[0]);
-//	imshow("Green Plane",bgr[1]);
-//	imshow("Red Plane",bgr[2]);
-	
-	Mat img_hsv;
-	//cvtColor converts the color space to another color space or gray space
-	cvtColor(img_rgb,img_hsv,CV_BGR2HSV);
-	vector<Mat>hsv;
-	split(img_hsv,hsv);
-//	cv::print(hsv[0]);  //---->>>>> Sirve para ver los distintos niveles de saturacion que tiene la imagen, va de 0(rojo) a 120(azul)
-//	imshow("Original HSV",img_hsv);
-//	imshow("H",hsv[0]);
-//	imshow("S",hsv[1]);
-//	imshow("V",hsv[2]);
-	// H es el tono, S la saturacion y V el valor o brillo
-	
-	//si quiero cambiar el patron, donde habia azul poner rojo y viceversa
-	//simplemente debo cambiar la componente del tono (H) haciendo 120-H.
-	
-	hsv[0]=120-hsv[0]; //Invierte la imagen, ya que los valores cercanos a 0 son rojos y los cercanos a 120 son azules
-	Mat img_hsv2;
-	Mat	img_rgb2;
-	merge(hsv,img_hsv2);
-	cvtColor(img_hsv2, img_rgb2, CV_HSV2BGR);
-	imshow("RGB invertido",img_rgb2);
-	
-	cout<<"Nivel de staruacion: "<<(int)hsv[1].at<uchar>(1,1);
-	//Como el nivel de saturacion ya es maximo, solo debo modificar el brillo
-	hsv[2] = 255;
-	merge(hsv,img_hsv2);
-	cvtColor(img_hsv2,img_rgb2,CV_HSV2BGR);
-	imshow("Saturacion y Brillo al maximo",img_rgb2);
-	
-}
 
-void TP4_Ejercicio1_2(){
-	Mat img = imread("rosas.jpg");
-	imshow("Original", img);
-	Mat img_hsv;
-	cvtColor(img,img_hsv,CV_BGR2HSV);
-	vector<Mat>hsv;
-	split(img_hsv,hsv);
-//	cv::print(hsv[0]);
-	hsv[0]=hsv[0]+90; //Complemento del tono, como los colores van de 0 a 180 en c++ y no hasta 360, solo debo sumar 90
-//	hsv[1]=255-hsv[1]; //complemento de la saturacion 
-	hsv[2]=255-hsv[2]; //complemento del brillo
-	//Para sacar el complemento solo se modifican los canales de hue y value, saturation no se toca
-	merge(hsv,img_hsv);
-	cvtColor(img_hsv,img,CV_HSV2BGR);
-	
-	imshow("Complementario",img);
-}
-
-void TP4_Ejercicio2(){
-	Mat img = imread("rio.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-	imshow("Original",img);
-	//Realizo el histograma
-	Mat canvas(200,400,CV_32F);
-	Mat histo=histogram(img,255);
-	normalize(histo,histo,0,1,CV_MINMAX);
-	draw_graph(canvas,histo);
-	imshow("Histograma",canvas);
-	//Los niveles de grises de interes rondan entre 0 y 20 aproximadamente
-	Mat img_color;
-	cvtColor(img,img_color,CV_GRAY2BGR);
-	for (int i = 0; i< img_color.rows;i++){
-		for (int j=0;j<img_color.cols;j++){
-			if(img.at<uchar>(i,j)<25){
-				img_color.at<Vec3b>(i,j)[0]=0;  //Blue
-				img_color.at<Vec3b>(i,j)[1]=255;  //Green
-				img_color.at<Vec3b>(i,j)[2]=255;  //Red
-				
-			}
-		}
+Mat TP5_Ejercicio1_1(int tipo){
+	Mat figura(512,512,CV_32F);
+	switch (tipo){
+	case 1:{ //linea horizontal
+		//		line(figura,Point(0,figura.rows/2-100),Point(figura.cols,figura.rows/2-100),Scalar(1));
+		//Este for si quiero hacer una linea con mayor grosor
+		//		for(int i=(figura.rows/2)-2;i<(figura.rows/2)+2;i++) { 
+		//			for(int j=0;j<figura.cols;j++) { 
+		//				figura.at<float>(i,j)=1;
+		//			}
+		//		}
+		line(figura,Point(0,figura.rows/2),Point(figura.cols,figura.rows/2),Scalar(1));
+		//		line(figura,Point(0,figura.rows/2+100),Point(figura.cols,figura.rows/2+100),Scalar(1));
+		break;}
+	case 2:{ //linea vertical
+			line(figura,Point(figura.cols/2,0),Point(figura.cols/2,figura.rows),Scalar(1));
+			break;}
+	case 3:{ //cuadrado centrado
+			rectangle(figura,Point((figura.cols/2)-30,(figura.rows/2)-30),Point((figura.cols/2)+30,(figura.rows/2)+30),Scalar(1));
+//			for para hacer cuadrado relleno
+//			for(int i=figura.rows/2-30;i<figura.rows/2+30;i++) { 
+//				for(int j=figura.cols/2-30;j<figura.cols/2+30;j++) { 
+//					figura.at<float>(i,j)=1;
+//				}
+//			}
+				break;}
+	case 4:{ //rectangulo centrado
+				rectangle(figura,Point((figura.cols/2)-40,(figura.rows/2)-20),Point((figura.cols/2)+40,(figura.rows/2)+20),Scalar(1));	
+				break;}
+	case 5:{ //circulo centrado
+				circle(figura,Point(figura.cols/4,figura.rows/4),100,Scalar(1));
+				break;}
+	default:{
+				cout<<"Figura Invalida"<<endl;
+				break;}
 	}
-	imshow("Modificada",img_color);
+	return figura;
 }
 
-void TP4_Ejercicio3_1(){
-	Mat img = imread("flowers_oscura.tif");
-	Mat img1 = imread("flowers_oscura.tif");
+void TP5_Ejercicio1_2(Mat img){
+	Mat transformada(img.size(),img.type());
+	transformada=spectrum(img);
+	namedWindow("Espectro de Intensidad",CV_WINDOW_KEEPRATIO);
+	imshow("Espectro de Intensidad",transformada);
+	imshow("Imagen espacio",img);
+}
+
+void rotate(cv::Mat& src, double angle, cv::Mat& dst){ //Funcion para rotar una imagen.
+	cv::Point2f ptCp(src.cols*0.5, src.rows*0.5);
+	cv::Mat M = cv::getRotationMatrix2D(ptCp, angle, 1.0);
+	cv::warpAffine(src, dst, M, src.size(), cv::INTER_CUBIC); //Nearest is too rough, 
+}
+
+void TP5_Ejercicio1_3(){
+	Mat img(512,512,CV_32F);
+	line(img,Point(img.cols/2,0),Point(img.cols/2,img.rows),Scalar(1));
+	Mat roi1=img(Rect(img.cols/2-128,img.rows/2-128,256,256));
+	imshow("Imagen Original",roi1);
+	imshow("Espectro Img Original",spectrum(roi1));
+	rotate(img,20,img);
+	Mat roi2=img(Rect(img.cols/2-128,img.rows/2-128,256,256));
+	imshow("Imagen Rotada",roi2);
+	imshow("Espectro Img Rotada",spectrum(roi2));
+}
+
+void TP5_Ejercicio1_4(string nombre){
+	Mat img=imread(nombre,CV_LOAD_IMAGE_GRAYSCALE);
+	img.convertTo(img,CV_32F,1./255);
 	imshow("Original",img);
-	vector<Mat>bgr;
-	split(img,bgr);
-	equalizeHist(bgr[0],bgr[0]);
-	equalizeHist(bgr[1],bgr[1]);
-	equalizeHist(bgr[2],bgr[2]);
-	merge(bgr,img);
-	imshow("Imagen equalizada RGB",img);
-	
-	//Trabajare en HSV
-	Mat img_hsv;
-	cvtColor(img1, img_hsv,CV_BGR2HSV);
-	vector<Mat>hsv;
-	split(img_hsv,hsv);
-	//Solo se ecualiza el canal V
-	equalizeHist(hsv[2],hsv[2]);
-	merge(hsv,img_hsv);
-	//Vuelvo a RGB para poder mostrarla
-	cvtColor(img_hsv,img_hsv,CV_HSV2BGR);
-	imshow("Imagen equalizada HSV",img_hsv);
+	imshow("Magnitud",spectrum(img));
 }
 
-Mat filtro_pasa_alto_suma1(int tam){
-	Mat kernel(tam,tam,CV_32F);
-	for (int i=0;i<kernel.rows;i++){
-		for (int j=0;j<kernel.cols;j++){
-			kernel.at<float>(i,j)=-1;
-		}
+void TP5_Ejercicio2(string nombre,string pasa,int tipo,double D0,int orden){
+	Mat img=imread(nombre,CV_LOAD_IMAGE_GRAYSCALE);
+	img.convertTo(img,CV_32F,1./255);
+	int filas=img.rows;
+	int columnas=img.cols;
+	img=optimum_size(img); //Copia la imagen en una cuya dimensiones hacen eficiente la fft
+	Mat filtro;
+	switch (tipo){
+	case 1:{
+		filtro=filter_ideal(img.rows,img.cols,D0); //filtro ideal
+		break;}
+	case 2:{
+		filtro=filter_butterworth(img.rows,img.cols,D0,orden); //filtro de Butterworth
+		break;}
+	case 3:{
+		filtro=filter_gaussian(img.rows,img.cols,D0); //Filtro Gaussiano
+		break;}
 	}
-	kernel.at<float>(tam/2,tam/2)=tam*tam;
-	return kernel;
-}
-
-
-void TP4_Ejercicio3_2(){
-	Mat img = imread("camino.tif");
-	Mat img1 = imread("camino.tif");
+	if (pasa=="Pasa Alto"){
+		filtro=1-filtro; //Si es pasa alto se invierte todo, ya que ahora lo que no se filtra es el circulo
+		//central que es donde estan las frecuencias bajas y se dejan pasar el resto que son las altas
+	}
+	Mat filtrada=filter(img,filtro);
+	filtrada=filtrada(Range(0,filas),Range(0,columnas));
+	img=img(Range(0,filas),Range(0,columnas));
 	imshow("Original",img);
-	Mat kernel = filtro_pasa_alto_suma1(3);
-	vector<Mat> bgr;
-	split(img,bgr);
-	bgr[0] = convolve(bgr[0],kernel);
-	bgr[1] = convolve(bgr[1],kernel);
-	bgr[2] = convolve(bgr[2],kernel);
-	merge(bgr,img);
-	imshow("Imagen RGB Filtrada",img);
-	
-	Mat img_hsv;
-	cvtColor(img1,img_hsv,CV_BGR2HSV);
-	vector<Mat>hsv;
-	split(img_hsv,hsv);
-	//Nuevamente, el kernel se aplica solo sobre el plano de brillo o valor
-	hsv[2]=convolve(hsv[2],kernel);
-	merge(hsv,img_hsv);
-	cvtColor(img_hsv,img1,CV_HSV2BGR);
-	imshow("Imagen HSV filtrada",img1);
-	
+	imshow("Espectro Original",spectrum(img));
+	namedWindow("Imagen Filtrada",CV_WINDOW_KEEPRATIO);
+	imshow("Imagen Filtrada",filtrada);
+	imshow("Espectro filtro",spectrum(filtrada));
 }
 
+void TP5_Ejercicio3(float A, float a, float b){
+	Mat img=imread("camaleon.tif",CV_LOAD_IMAGE_GRAYSCALE);
+	img.convertTo(img,CV_32F,1./255);
+	int filas=img.rows;
+	int columnas=img.cols;
+	img=optimum_size(img);
+	//Filtrado de alta potencia (high boost)
+	Mat high_boost=filter_butterworth(img.rows,img.cols,50/255.0,2);
+	high_boost=1-high_boost;
+	high_boost=(A-1)+high_boost;
+	Mat filtrado_AltaPotencia=filter(img,high_boost);
+	filtrado_AltaPotencia=filtrado_AltaPotencia(Range(0,filas),Range(0,columnas));
+	img=img(Range(0,filas),Range(0,columnas));
+	
+	//Filtrado de Alta Frecuencia
+	img=optimum_size(img);
+	//Filtrado de alta potencia (high boost)
+	Mat enfasis=filter_butterworth(img.rows,img.cols,50/255.0,2);
+	enfasis=1-enfasis;
+	enfasis=a+b*enfasis;
+	Mat filtrado_AltaFrecuencia=filter(img,enfasis);
+	filtrado_AltaFrecuencia=filtrado_AltaFrecuencia(Range(0,filas),Range(0,columnas));
+	img=img(Range(0,filas),Range(0,columnas));
+	
+	imshow("Original",img);
+	imshow("Espectro Original",spectrum(img));
+	namedWindow("Filtrado de Alta Potencia",CV_WINDOW_KEEPRATIO);
+	imshow("Filtrado de Alta Potencia",filtrado_AltaPotencia);
+	imshow("Espectro Filtro Alta Potencia",spectrum(filtrado_AltaPotencia));
+	namedWindow("Filtrado de Alta Frecuencia",CV_WINDOW_KEEPRATIO);
+	imshow("Filtrado de Alta Frecuencia",filtrado_AltaFrecuencia);
+	imshow("Espectro Filtro Alta Frecuencia",spectrum(filtrado_AltaFrecuencia));
+}
 
-
-
+void TP5_Ejercicio4(float yl, float yh, double D0){
+	Mat img=imread("casilla.tif",CV_LOAD_IMAGE_GRAYSCALE);
+	Mat ecualizada;
+	equalizeHist(img,ecualizada);
+	imshow("Original",img);
+	imshow("Original Ecualizada",ecualizada);
+	
+	img.convertTo(img,CV_32F,1./255);
+	imshow("Spec Original",spectrum(img));
+	img=img+0.00001;
+	log(img,img);
+	int filas=img.rows;
+	int columnas=img.cols;
+	img=optimum_size(img);
+	Mat filtro;
+	filtro=(yh-yl)*(1-filter_gaussian(img.rows,img.cols,D0))+yl; 
+	//	Mat espectro=spectrum(filtro);
+	Mat filtrada=filter(img,filtro);
+	filtrada=filtrada(Range(0,filas),Range(0,columnas));
+	img=img(Range(0,filas),Range(0,columnas));
+	exp(filtrada,filtrada);
+	imshow("Filtro Homomorfico",filtrada);
+	//	stats(filtrada);
+	imshow("Spec Filtrada",spectrum(filtrada));
+	normalize(filtrada,filtrada,0,255,CV_MINMAX);
+	filtrada.convertTo(filtrada,ecualizada.type());
+	equalizeHist(filtrada,filtrada);
+	//	stats(filtrada);
+	
+	imshow("Homomorfico Ecualizado",filtrada);
+	//	imshow("espectro",filtro);
+	waitKey(0);
+}
 
 
 
 int main(int argc, char** argv) {
-	
-//	TP4_Ejercicio1_1();
-//	TP4_Ejercicio1_2();
-//	TP4_Ejercicio2();
-	TP4_Ejercicio3_1();
-//	TP4_Ejercicio3_2();
-
-	
-	
+//	Mat img;
+//	img = TP5_Ejercicio1_1(5);
+//	TP5_Ejercicio1_2(img);	
+//	TP5_Ejercicio1_3();
+//	TP5_Ejercicio1_4("huang3.jpg");
+//	TP5_Ejercicio2("huang3.jpg","Pasa Bajo",3,25/255.0,3);
+//	TP5_Ejercicio3(1,2,6);
+	TP5_Ejercicio4(0.7,1.3,0.1);
 	waitKey(0);
 	return 0;
 } 
