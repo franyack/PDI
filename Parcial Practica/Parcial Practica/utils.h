@@ -689,5 +689,5 @@ float obtenerDesvio(Mat img){
 	}
 	desvio/=(img.rows*img.cols);
 	desvio=sqrt(desvio);
-	return desvio*10;
+	return desvio;
 }
