@@ -200,7 +200,7 @@ Mat equalizarHSV(Mat img){
 	return img;
 	
 }
-
+	
 //Filtra cada plano RGB con un pasa alto suma 1, realzando la imagen
 Mat realceMedianteAcentuadoRGB(Mat img, int n = 3){
 	vector<Mat> bgr;
@@ -251,8 +251,8 @@ vector<Mat> aplicar_filtro_frecuencia(Mat img, int altobajo, int tipo, double D0
 			filtro=filter_butterworth(img.rows,img.cols,D0,orden); //filtro de Butterworth
 			break;}
 	case 3:{
-			filtro=filter_gaussian(img.rows,img.cols,D0); //Filtro Gaussiano
-			break;}
+				filtro=filter_gaussian(img.rows,img.cols,D0); //Filtro Gaussiano
+				break;}
 	}
 	if (altobajo == 1){
 		filtro=1-filtro; //Si es pasa alto se invierte todo, ya que ahora lo que no se filtra es el circulo
@@ -690,4 +690,248 @@ float obtenerDesvio(Mat img){
 	desvio/=(img.rows*img.cols);
 	desvio=sqrt(desvio);
 	return desvio;
+}
+
+void Hough(cv::Mat im,cv::Mat &cdst,cv::Mat &dst,double threshold,int &cx,int &cy,bool vertical=0,bool horizontal=0){
+	//Inputs:
+	// YOU CAN MOVE the Canny threshold also
+	// Im: image
+	// threshold: for HoughLines
+	// vertical and horizontal: for detect vertical or horizontal lines
+	//Outputs:
+	// cdst: image and HoughLines
+	// dst: contour of image
+	//Notes: you can modify the degrees at line 30 and 31, also you can modify the large in 38 to 41
+	
+	Canny(im, dst, 50, 200, 3); //MOVE THIS PARAMETERS IF YOU NEED
+	cvtColor(dst, cdst, CV_GRAY2BGR); 
+	cx=0;cy=0;
+	vector<Vec2f> lines;
+	// detect lines
+	HoughLines(dst, lines, 1, CV_PI/180, threshold, 0, 0 );
+	int ymin=0;
+	
+	// draw lines
+	for( size_t i = 0; i < lines.size(); i++ ){
+		float rho = lines[i][0], theta = lines[i][1];
+		// tener en cuenta sistema x-y normal y 0<theta<180
+		Point pt1, pt2;
+		double a = cos(theta), b = sin(theta);
+		double x0 = a*rho, y0 = b*rho;
+		pt1.x = cvRound(x0 + 1000*(-b));
+		pt1.y = cvRound(y0 + 1000*(a));
+		pt2.x = cvRound(x0 - 1000*(-b));
+		pt2.y = cvRound(y0 - 1000*(a));
+		if(( theta>(CV_PI/180)*170 || theta<(CV_PI/180)*10) and vertical){ line( cdst, pt1, pt2, Scalar(0,0,255), 3, CV_AA);cy=x0;} //vertical
+		if(( theta>CV_PI/180*80 && theta<CV_PI/180*100) and horizontal){ 
+			if(y0>ymin){
+				line( cdst, pt1, pt2, Scalar(0,0,255), 3, CV_AA);
+				ymin=y0;
+			}
+			cx=ymin;
+		} //horizontal
+		
+	}
+	
+	return;
+}
+
+void MostrarHistogramas(Mat img){
+	Mat img_bgr;
+	img_bgr = img;
+	imshow("Orignial BGR",img_bgr);
+	Mat img_hsv;
+	cvtColor(img,img_hsv,CV_BGR2HSV);
+	imshow("Orignial HSV",img_hsv);
+	
+	vector<Mat> bgr; 	
+	vector<Mat> hsv; 	
+	split(img_bgr,bgr);
+	split(img_hsv,hsv);
+	
+	//HISTOGRAMA DE LAS IMAGENES EN LOS 3 CANALES PARA BGR Y HSV
+	Mat canvas_BGR(200,400,CV_32F);
+	Mat canvas_HSV(200,400,CV_32F);
+	Mat histo_BGR = histogram(img_bgr,256,Mat());
+	Mat histo_HSV = histogram(img_hsv,256,Mat());
+	normalize(histo_BGR,histo_BGR,0,1,CV_MINMAX);
+	normalize(histo_HSV,histo_HSV,0,1,CV_MINMAX);
+	draw_graph(canvas_BGR,histo_BGR);
+	draw_graph(canvas_HSV,histo_HSV);
+	imshow("Histograma BGR",canvas_BGR);
+	imshow("Histograma HSV",canvas_HSV);
+	
+	//Histograma B - G - R
+	Mat canvas_BGR_B(200,400,CV_32F);
+	Mat canvas_BGR_G(200,400,CV_32F);
+	Mat canvas_BGR_R(200,400,CV_32F);
+	Mat histo_BGR_B = histogram(bgr[0],256,Mat());
+	Mat histo_BGR_G = histogram(bgr[1],256,Mat());
+	Mat histo_BGR_R = histogram(bgr[2],256,Mat());
+	normalize(histo_BGR_B,histo_BGR_B,0,1,CV_MINMAX);
+	normalize(histo_BGR_G,histo_BGR_G,0,1,CV_MINMAX);
+	normalize(histo_BGR_R,histo_BGR_R,0,1,CV_MINMAX);
+	draw_graph(canvas_BGR_B,histo_BGR_B);
+	draw_graph(canvas_BGR_G,histo_BGR_G);
+	draw_graph(canvas_BGR_R,histo_BGR_R);
+	imshow("Histograma BGR_B",canvas_BGR_B);
+	imshow("Histograma BGR_G",canvas_BGR_G);
+	imshow("Histograma BGR_R",canvas_BGR_R);
+	
+	//Histograma H - S - V
+	Mat canvas_HSV_H(200,400,CV_32F);
+	Mat canvas_HSV_S(200,400,CV_32F);
+	Mat canvas_HSV_V(200,400,CV_32F);
+	Mat histo_HSV_H = histogram(hsv[0],256,Mat());
+	Mat histo_HSV_S = histogram(hsv[1],256,Mat());
+	Mat histo_HSV_V = histogram(hsv[2],256,Mat());
+	normalize(histo_HSV_H,histo_HSV_H,0,1,CV_MINMAX);
+	normalize(histo_HSV_S,histo_HSV_S,0,1,CV_MINMAX);
+	normalize(histo_HSV_V,histo_HSV_V,0,1,CV_MINMAX);
+	draw_graph(canvas_HSV_H,histo_HSV_H);
+	draw_graph(canvas_HSV_S,histo_HSV_S);
+	draw_graph(canvas_HSV_V,histo_HSV_V);
+	imshow("Histograma HSV_H",canvas_BGR_B);
+	imshow("Histograma HSV_S",canvas_HSV_S);
+	imshow("Histograma HSV_V",canvas_HSV_V);
+	
+	waitKey(0);
+}
+
+
+
+
+//Mat img,gradiente,transformada;
+//
+//img=imread("Tenis/1.jpg");
+//info(img);
+//vector <vector <Point> > pt;
+//HoughComun(img,gradiente,transformada,800,pt);
+
+void HoughComun(Mat img, Mat &Gradiente, Mat &transformada, int tamaniolineas, vector <vector <Point> > &pt ){
+	cvtColor(img,img,CV_BGR2GRAY);
+	Canny(img,Gradiente,50,200,3); //Detecto los bordes de la imagen
+	//			imshow("Original",img);
+	//			imshow("Bordes",Gradiente);
+	vector<Vec2f> lines;
+	cvtColor(Gradiente, transformada, CV_GRAY2BGR);
+	//HoughLines parámetros:
+	//1º Salida del detector del borde.
+	//2º Vector que almacenara los parametros ro, theta de las lineas detectadas.
+	//3º La resolucion de ro en pixeles, usamos 1 pixel
+	//4º La resolucion del parametro theta en radianes utilizamos un grado (CV_PI/180)
+	//5º Umbral numero minimo de intersecciones para detectar una linea, a mayor umbral lineas mas largas.
+	//6º y 7º parametros por defecto en 0
+	//	HoughLines(Gradiente, lines, 1, CV_PI/180, 50, 0, 0 ); //Parametros para "letras1.tif"
+	HoughLines(Gradiente, lines, 1, CV_PI/180, tamaniolineas, 0, 0 ); //Parametros para "snowman.png"
+	//			cout<<lines.size()<<endl;
+	
+	for( size_t i = 0; i < lines.size(); i++ )
+	{
+		float ro = lines[i][0], theta = lines[i][1];
+		Point pt1, pt2;
+		vector <Point> ptt;
+		double a = cos(theta), b = sin(theta);
+		double x0 = a*ro, y0 = b*ro;
+		pt1.x = cvRound(x0 + 1000*(-b));
+		pt1.y = cvRound(y0 + 1000*(a));
+		pt2.x = cvRound(x0 - 1000*(-b));
+		pt2.y = cvRound(y0 - 1000*(a));
+		ptt.push_back(pt1);
+		ptt.push_back(pt2);
+		line( transformada, pt1, pt2, Scalar(0,0,255), 3, CV_AA);
+		pt.push_back(ptt);
+	}
+	//			for(int i=0;i<lines.size();i++) { 
+	//				cout<<lines[i]<<endl;
+	//			}
+}
+
+void RecorrerVectorVectoresPoint(vector <vector <Point> > pt){
+	for(int i=0;i<pt.size();i++) { 
+		vector <Point> aux;
+		aux=pt[i];
+		cout<<"LINEA "<<i;
+		Point p1=aux[0];
+		Point p2=aux[1];
+		cout<<" PUNTO 1: X: "<<p1.x<<" Y: "<<p1.y<<" - PUNTO 2: X: "<<p2.x<<" Y: "<<p2.y<<endl;
+	}
+}
+
+
+void HoughComunAngulos(Mat img, Mat &Gradiente, Mat &transformada,float angulo, int tamaniolineas, vector <vector <Point> > &pt ){
+	//Le paso el angulo de las que quiero encontrar, recordar que:
+	//Verticales: 0º
+	//Horizontales: 90º
+	
+	cvtColor(img,img,CV_BGR2GRAY);
+	Canny(img,Gradiente,50,200,3); //Detecto los bordes de la imagen
+	vector<Vec2f> lines;
+	cvtColor(Gradiente, transformada, CV_GRAY2BGR);
+	HoughLines(Gradiente, lines, 1, (CV_PI/180), tamaniolineas, 0, 0 ); //Parametros para "snowman.png"
+	
+	for( size_t i = 0; i < lines.size(); i++ )
+	{	
+		cout<<(180*(lines[i][1])/M_PI)<<endl;
+		if (angulo==(float)(180*(lines[i][1])/M_PI)){
+			float ro = lines[i][0], theta = lines[i][1];
+			Point pt1, pt2;
+			vector <Point> ptt;
+			double a = cos(theta), b = sin(theta);
+			double x0 = a*ro, y0 = b*ro;
+			pt1.x = cvRound(x0 + 1000*(-b));
+			pt1.y = cvRound(y0 + 1000*(a));
+			pt2.x = cvRound(x0 - 1000*(-b));
+			pt2.y = cvRound(y0 - 1000*(a));
+			ptt.push_back(pt1);
+			ptt.push_back(pt2);
+			line( transformada, pt1, pt2, Scalar(0,0,255), 3, CV_AA);
+			pt.push_back(ptt);
+		}
+		
+	}
+}
+
+
+void TransformadaHoughCircular(Mat src){ //Imagen en color, dps convierto en gris aca
+	Mat src_gray;
+	/// Convert it to gray
+	cvtColor( src, src_gray, CV_BGR2GRAY );
+	
+	/// Reduce the noise so we avoid false circle detection
+	GaussianBlur( src_gray, src_gray, Size(9, 9), 2, 2 );
+	
+	vector<Vec3f> circles;
+	
+	/// Apply the Hough Transform to find the circles
+	//Parametros del HoughCircles:
+	//1º imagen de entrada en grises
+	//2º vector de salida de los circulos encontrados, con x,y del centro y r del radio.
+	//3º CV_HOUGH_GRADIENT
+	//4º 1
+	//5º Distancia entre los centros de los circulos encontrados, si es muy pequeño varios circulos pueden ser falsamente detectados
+	//si es muy grande algunos se pueden perder.
+	//6º 
+	//7º 
+	//8º Minimo radio
+	//9º Maximo radio
+	
+	HoughCircles( src_gray, circles, CV_HOUGH_GRADIENT, 1, src_gray.rows/8, 200, 100, 0, 0 );
+	
+	/// Draw the circles detected
+	for( size_t i = 0; i < circles.size(); i++ )
+	{
+		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+		int radius = cvRound(circles[i][2]);
+		// circle center
+		circle( src, center, 3, Scalar(0,255,0), -1, 8, 0 );
+		// circle outline
+		circle( src, center, radius, Scalar(0,0,255), 3, 8, 0 );
+	}
+	
+	/// Show your results
+	namedWindow( "Hough Circle Transform Demo", CV_WINDOW_KEEPRATIO );
+	imshow( "Hough Circle Transform Demo", src );
+	
+	waitKey(0);
 }

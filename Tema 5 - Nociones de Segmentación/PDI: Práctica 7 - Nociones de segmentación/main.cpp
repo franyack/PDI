@@ -294,7 +294,7 @@ float Desvio(Mat img, float Media){
 }
 
 void Ejercicio4(){
-	Mat img=imread("rosas.jpg");
+	Mat img=imread("1.png");
 	//Haciendo 2 clicks obtengo los puntos para el ROI que quiero armar
 	cantclick=2;
 	namedWindow("My Window",CV_WINDOW_KEEPRATIO);
@@ -455,7 +455,7 @@ int main(int argc, char** argv) {
 	
 //		Ejercicio3();
 	
-//		Ejercicio4();
+		Ejercicio4();
 	
 	//	Ejercicio5();
 
