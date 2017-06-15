@@ -1,0 +1,1 @@
+Detectar si el lugar de discapacitados esta libre. Si es asi marcar la trayectoria del auto para q estacione.
