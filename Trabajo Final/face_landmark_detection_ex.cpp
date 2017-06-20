@@ -136,13 +136,15 @@ int main(int argc, char** argv)
         double dist3 = sqrt(pow((shape.part(43)(1) - shape.part(23)(1)),2) + pow((shape.part(43)(0) - shape.part(23)(0)),2));
         double dist4 = sqrt(pow((shape.part(44)(1) - shape.part(24)(1)),2) + pow((shape.part(44)(0) - shape.part(24)(0)),2));
 
-        cout<<"El 37: x: "<<shape.part(61)(0)<<" y: "<<shape.part(61)(1)<<endl;
-        cout<<"El 41: x: "<<shape.part(67)(0)<<" y: "<<shape.part(67)(1)<<endl;
+        cout<<"El 48: x: "<<shape.part(48)(0)<<" y: "<<shape.part(48)(1)<<endl;
+        cout<<"El 54: x: "<<shape.part(54)(0)<<" y: "<<shape.part(54)(1)<<endl;
 
-        cout<<"El 44: x: "<<shape.part(63)(0)<<" y: "<<shape.part(63)(1)<<endl;
-        cout<<"El 46: x: "<<shape.part(65)(0)<<" y: "<<shape.part(65)(1)<<endl;
+        //cout<<"El 33: x: "<<shape.part(33)(0)<<" y: "<<shape.part(33)(1)<<endl;
+        //cout<<"El 51: x: "<<shape.part(51)(0)<<" y: "<<shape.part(51)(1)<<endl;
 
-        cout<<"medio "<<shape.part(66)(0)<<endl;
+        //cout<<"medio "<<shape.part(66)(0)<<endl;
+        //cout<<"Euclidea entre 45 y 54 "<<sqrt(pow((shape.part(54)(1) - shape.part(45)(1)),2) + pow((shape.part(54)(0) - shape.part(45)(0)),2))<<endl;
+        //cout<<"Euclidea entre 36 y 48 "<<sqrt(pow((shape.part(36)(1) - shape.part(48)(1)),2) + pow((shape.part(36)(0) - shape.part(48)(0)),2))<<endl;
 
         //Distancia siete de oro
         double siete = sqrt(pow((shape.part(48)(1) - shape.part(54)(1)),2) + pow((shape.part(48)(0) - shape.part(54)(0)),2));

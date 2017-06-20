@@ -71,7 +71,7 @@ int main()
       //	contador=0;
       //}
       //Este contador lo hago para obtener la cara neutra, es decir si pasaron 20 frames que se actualice
-      if (prueba==10){
+      if (prueba==20){
         prueba=0;
       }
       // Grab a frame
@@ -129,11 +129,21 @@ int main()
         double nada2 = sqrt(pow((shape.part(44)(1) - shape.part(46)(1)),2) + pow((shape.part(44)(0) - shape.part(46)(0)),2));
         double neutronada2 = sqrt(pow((auxiliar.part(44)(1) - auxiliar.part(46)(1)),2) + pow((auxiliar.part(44)(0) - auxiliar.part(46)(0)),2));
 
-        double ancho1 = sqrt(pow((shape.part(61)(1) - shape.part(67)(1)),2) + pow((shape.part(61)(0) - shape.part(67)(0)),2));
-        double neutroancho1 = sqrt(pow((auxiliar.part(61)(1) - auxiliar.part(67)(1)),2) + pow((auxiliar.part(61)(0) - auxiliar.part(67)(0)),2));
-        double ancho2 = sqrt(pow((shape.part(44)(1) - shape.part(46)(1)),2) + pow((shape.part(44)(0) - shape.part(46)(0)),2));
+        double ancho1 = sqrt(pow((shape.part(51)(1) - shape.part(57)(1)),2) + pow((shape.part(51)(0) - shape.part(57)(0)),2));
+        double neutroancho1 = sqrt(pow((auxiliar.part(51)(1) - auxiliar.part(57)(1)),2) + pow((auxiliar.part(51)(0) - auxiliar.part(57)(0)),2));
+        double ancho2 = sqrt(pow((shape.part(65)(1) - shape.part(63)(1)),2) + pow((shape.part(65)(0) - shape.part(63)(0)),2));
         double neutroancho2 = sqrt(pow((auxiliar.part(63)(1) - auxiliar.part(65)(1)),2) + pow((auxiliar.part(63)(0) - auxiliar.part(65)(0)),2));
 
+        double dos1 = sqrt(pow((shape.part(50)(1) - shape.part(62)(1)),2) + pow((shape.part(50)(0) - shape.part(62)(0)),2));
+        double neutrodos1 = sqrt(pow((auxiliar.part(50)(1) - auxiliar.part(62)(1)),2) + pow((auxiliar.part(50)(0) - auxiliar.part(62)(0)),2));
+        double dos2 = sqrt(pow((shape.part(51)(1) - shape.part(33)(1)),2) + pow((shape.part(51)(0) - shape.part(33)(0)),2));
+        double neutrodos2 = sqrt(pow((auxiliar.part(51)(1) - auxiliar.part(33)(1)),2) + pow((auxiliar.part(51)(0) - auxiliar.part(33)(0)),2));
+
+        //cout<<"dos 1 "<<dos1 * 100 / neutrodos1<<endl<<endl;
+        //cout<<"dos 2 "<<dos2 * 100 / neutrodos2<<endl<<endl;
+
+        //cout<<"resta oro "<<shape.part(48)(1) - shape.part(54)(1)<<endl<<endl;
+        //cout<<"resta espada"<<shape.part(54)(1) - shape.part(48)(1)<<endl<<endl;
 
         if(nada1 * 100 / neutronada1 < 50 && nada2 * 100 / neutronada2 < 50){
           cout<<"NO TIENE NADA!!!"<<endl;
@@ -141,13 +151,21 @@ int main()
           if (((Macho1*100/NeutroMacho1)>130) && ((Macho2*100/NeutroMacho2)>130)){
             cout<< "TIENE EL MACHO "<< endl;
           }else {
-            if(siete *100 / sieteneutro > 110 && !(ancho1 * 100 / neutroancho1 > 300 && ancho2 * 100 / neutroancho2 > 300)){
-              cout<<"TIENE EL SIETE"<<endl;
+            if(shape.part(48)(1) - shape.part(54)(1)>15){
+              cout<<"TIENE EL SIETE DE ORO"<<endl;
             }else{
-              if(ancho1 * 100 / neutroancho1 > 300 && ancho2 * 100 / neutroancho2 > 300){
-                cout<<"TIENE EL ANCHO FALSO"<<endl;
+              if(shape.part(54)(1) - shape.part(48)(1)>8){
+                cout<<"TIENE EL SIETE DE ESPADA"<<endl;
               }else{
-                  cout<<"NEUTRO"<<endl;
+                if(dos1 * 100 / neutrodos1 > 115 && dos2 * 100 / neutrodos2 < 85){
+                  cout<<"TIENE EL DOS"<<endl;
+                }else{
+                  if(ancho1 * 100 / neutroancho1 > 200){
+                      cout<<"TIENE EL ANCHO FALSO "<<endl;
+                  }else{
+                      cout<<"NEUTRO"<<endl;
+                  }
+                }
               }
             }
           }
